@@ -27,7 +27,7 @@ public class GameControllerExample : MonoBehaviour {
 
 		// Call before using any other methods on GameThrive.
 		// Should only be called once when your game is loaded.
-		GameThrive.Init("703322744261", "5eb5a37e-b458-11e3-ac11-000c2940e62c", HandleNotification);
+		GameThrive.Init("b49e69ca-d0b8-11e3-97bf-c3d1433e8bc1", "703322744261", HandleNotification);
 	}
 
 	// Gets called when the player opens the notification or gets one while in your game.
