@@ -41,7 +41,7 @@ public class GameThrive : MonoBehaviour {
 	// googleProjectNumber    = Your google project number that is only required for Android GCM pushes.
 	// inNotificationDelegate = Calls this delegate when a notification is opened or one is received when the user is in your game.
 	// autoRegister           = Delays registering for iOS push notifications so you can RegisterForPushNotifications at a better point in your game.
-	public static void Init(string appId, string googleProjectNumber = null, NotificationReceived inNotificationDelegate = null, bool autoRegister = true) {
+	public static void Init(string appId, string googleProjectNumber, NotificationReceived inNotificationDelegate, bool autoRegister) {
 		#if !UNITY_EDITOR
 			if (initialized) return;
 			#if UNITY_ANDROID
@@ -58,6 +58,19 @@ public class GameThrive : MonoBehaviour {
 			print("Please run GameThrive on a device to see push notifications.");
 		#endif
 	}
+
+	// Parameter defaulting split out into different methods so they are compatible with UnityScript (AKA Unity Javascript).
+	public static void Init(string appId, string googleProjectNumber, NotificationReceived inNotificationDelegate) {
+		Init(appId, googleProjectNumber, inNotificationDelegate, true);
+	}
+	public static void Init(string appId, string googleProjectNumber) {
+		Init(appId, googleProjectNumber, null, true);
+	}
+	public static void Init(string appId) {
+		Init(appId, null, null, true);
+	}
+
+
 
 	// Tag player with a key value pair to later create segments on them at the gamethrive site.
 	public static void SendTag(string tagName, string tagValue) {
