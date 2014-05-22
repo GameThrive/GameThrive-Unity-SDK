@@ -36,6 +36,18 @@ public class GameThriveAndroid : GameThrivePlatform {
 	public void SendPurchase(double amount) {
 		mGameThrive.Call("sendPurchase", amount);
 	}
+
+	public void GetTags() {
+		mGameThrive.Call("getTags");
+	}
+
+	public void DeleteTag(string key) {
+		mGameThrive.Call("deleteTag", key);
+	}
+
+	public void IdsAvailable() {
+		mGameThrive.Call("idsAvailable");
+	}
 	
 	public void FireNotificationReceivedEvent(string jsonString, GameThrive.NotificationReceived notificationReceived) {
 		var dict = Json.Deserialize(jsonString) as Dictionary<string, object>;

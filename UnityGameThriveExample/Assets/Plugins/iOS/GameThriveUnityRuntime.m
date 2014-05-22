@@ -48,13 +48,13 @@ static void switchMethods(Class class, SEL oldSel, SEL newSel, IMP impl, const c
 	delegateClass = [delegate class];
     
 	switchMethods(delegateClass, @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:),
-                  @selector(application:blankMethod:), (IMP)didRegisterForRemoteNotificationsWithDeviceTokenLocal, "v@:::");
+                  @selector(application:blankMethod:), (IMP)didRegisterForRemoteNotificationsWithDeviceToken_GTLocal, "v@:::");
     
     switchMethods(delegateClass, @selector(application:didReceiveRemoteNotification:),
-                  @selector(application:blankMethod2:), (IMP)didReceiveRemoteNotificationLocal, "v@:::");
+                  @selector(application:blankMethod2:), (IMP)didReceiveRemoteNotification_GTLocal, "v@:::");
     
     switchMethods(delegateClass, @selector(application:didFinishLaunchingWithOptions:),
-                  @selector(application:selectorDidFinishLaunchingWithOptions:), (IMP)didFinishLaunchingWithOptionsLocal, "v@:::");
+                  @selector(application:selectorDidFinishLaunchingWithOptions:), (IMP)didFinishLaunchingWithOptions_GTLocal, "v@:::");
     
     [self setGameThriveDelegate:delegate];
 }
@@ -75,7 +75,7 @@ void _registerForPushNotifications() {
     [gameThrive registerForPushNotifications];
 }
 
-void _sendTag(const char* tagName,const char* tagValue) {
+void _sendTag(const char* tagName, const char* tagValue) {
 	[gameThrive sendTag:CreateNSString(tagName) value:CreateNSString(tagValue)];
 }
 
@@ -83,7 +83,34 @@ void _sendPurchase(double amount) {
     [gameThrive sendPurchase:[NSNumber numberWithDouble:amount]];
 }
 
-void didRegisterForRemoteNotificationsWithDeviceTokenLocal(id self, SEL _cmd, id application, id deviceToken) {
+void _deleteTag(const char* key) {
+    [gameThrive deleteTag:CreateNSString(key)];
+}
+
+void _getTags() {
+    [gameThrive getTags:^(NSDictionary* result) {
+        UnitySendMessage(unityListener, "onTagsReceived", dictionaryToJsonChar(result));
+    }];
+}
+
+void _idsAvailable() {
+    [gameThrive IdsAvailable:^(NSString* playerId, NSString* pushToken) {
+        UnitySendMessage(unityListener, "onIdsAvailable",
+                         dictionaryToJsonChar(@{@"playerId" : playerId, @"pushToken" : pushToken}));
+    }];
+}
+
+void _onPause() {
+    NSLog(@"_onPause");
+    [gameThrive onFocus:@"suspend"];
+}
+
+void _onResume() {
+    NSLog(@"_onPause");
+    [gameThrive onFocus:@"resume"];
+}
+
+void didRegisterForRemoteNotificationsWithDeviceToken_GTLocal(id self, SEL _cmd, id application, id deviceToken) {
     NSLog(@"Device Registered with Apple!");
     [gameThrive registerDeviceToken:deviceToken onSuccess:^(NSDictionary* results) {
         NSLog(@"Device Registered with GameThrive.");
@@ -92,7 +119,7 @@ void didRegisterForRemoteNotificationsWithDeviceTokenLocal(id self, SEL _cmd, id
     }];
 }
 
-BOOL didFinishLaunchingWithOptionsLocal(id self, SEL _cmd, id application, id launchOptions) {
+BOOL didFinishLaunchingWithOptions_GTLocal(id self, SEL _cmd, id application, id launchOptions) {
     launchDict = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
     
     BOOL result = YES;
@@ -107,8 +134,15 @@ BOOL didFinishLaunchingWithOptionsLocal(id self, SEL _cmd, id application, id la
 	return result;
 }
 
-void didReceiveRemoteNotificationLocal(id self, SEL _cmd, id application, id userInfo) {
+void didReceiveRemoteNotification_GTLocal(id self, SEL _cmd, id application, id userInfo) {
     processNotificationOpened(userInfo, [application applicationState] == UIApplicationStateActive);
+}
+
+const char* dictionaryToJsonChar(NSDictionary* dictionaryToConvert) {
+    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:dictionaryToConvert options:0 error:nil];
+    NSString* jsonRequestData = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    
+    return [jsonRequestData UTF8String];
 }
 
 void processNotificationOpened(NSDictionary* messageData, BOOL isActive) {
@@ -118,11 +152,7 @@ void processNotificationOpened(NSDictionary* messageData, BOOL isActive) {
     
     [pushDict setValue:[NSNumber numberWithBool:isActive] forKey:@"isActive"];
     
-    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:pushDict options:0 error:nil];
-    NSString* jsonRequestData = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    const char* str = [jsonRequestData UTF8String];
-    
-    UnitySendMessage(unityListener, "onPushNotificationReceived", str);
+    UnitySendMessage(unityListener, "onPushNotificationReceived", dictionaryToJsonChar(pushDict));
 }
 
 @end

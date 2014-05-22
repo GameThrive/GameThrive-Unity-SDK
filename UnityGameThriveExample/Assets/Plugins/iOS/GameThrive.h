@@ -18,17 +18,14 @@
  * limitations under the License.
  */
 
-// GameThrive SDK v1.2.0
+// GameThrive SDK v1.2.3
 
 #import <Foundation/Foundation.h>
 
-/** SMResultSuccessBlock
- */
 typedef void (^GTResultSuccessBlock)(NSDictionary* result);
-
-/** SMFailureBlock
- */
 typedef void (^GTFailureBlock)(NSError* error);
+typedef void (^GTIdsAvailableBlock)(NSString* playerId, NSString* pushToken);
+
 
 /**
  An `GameThrive` provides a high level interface to interacting with GameThrive's push service.
@@ -62,6 +59,8 @@ typedef void (^GTFailureBlock)(NSError* error);
 
 - (void)registerForPushNotifications;
 
+- (void)onFocus:(NSString*)state;
+
 
 + (void)setDefaultClient:(GameThrive*)client;
 + (GameThrive*)defaultClient;
@@ -74,10 +73,21 @@ typedef void (^GTFailureBlock)(NSError* error);
 - (void)sendTags:(NSDictionary*)keyValuePair onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
 - (void)sendTags:(NSDictionary*)keyValuePair;
 
+- (void)getTags:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
+- (void)getTags:(GTResultSuccessBlock)successBlock;
+
+- (void)deleteTag:(NSString*)key onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
+- (void)deleteTag:(NSString*)key;
+
+- (void)deleteTags:(NSArray*)keys onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
+- (void)deleteTags:(NSArray*)keys;
+
 - (void)sendPurchase:(NSNumber*)amount onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
 - (void)sendPurchase:(NSNumber*)amount;
 
 - (void)notificationOpened:(NSDictionary*)messageDict;
+
+- (void)IdsAvailable:(GTIdsAvailableBlock)idsAvailableBlock;
 
 - (NSString*)getPlayerId;
 - (NSString*)getDeviceToken;

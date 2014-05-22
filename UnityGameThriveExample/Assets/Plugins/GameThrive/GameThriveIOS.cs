@@ -32,7 +32,22 @@ public class GameThriveIOS : GameThrivePlatform {
 	extern static public void _sendTag(string tagName, string tagValue);
 
 	[System.Runtime.InteropServices.DllImport("__Internal")]
+	extern static public void _getTags();
+
+	[System.Runtime.InteropServices.DllImport("__Internal")]
+	extern static public void _deleteTag(string key);
+
+	[System.Runtime.InteropServices.DllImport("__Internal")]
 	extern static public void _sendPurchase(double amount);
+
+	[System.Runtime.InteropServices.DllImport("__Internal")]
+	extern static public void _onPause();
+
+	[System.Runtime.InteropServices.DllImport("__Internal")]
+	extern static public void _onResume();
+
+	[System.Runtime.InteropServices.DllImport("__Internal")]
+	extern static public void _idsAvailable();
 
 
 	public GameThriveIOS(string gameObjectName, string appId, bool autoRegister) {
@@ -47,8 +62,20 @@ public class GameThriveIOS : GameThrivePlatform {
 		_sendTag(tagName, tagValue);
 	}
 
+	public void GetTags() {
+		_getTags();
+	}
+
+	public void DeleteTag(string key) {
+		_deleteTag(key);
+	}
+
 	public void SendPurchase(double amount) {
 		_sendPurchase(amount);
+	}
+
+	public void IdsAvailable() {
+		_idsAvailable();
 	}
 
 	public void FireNotificationReceivedEvent(string jsonString, GameThrive.NotificationReceived notificationReceived) {
@@ -61,6 +88,11 @@ public class GameThriveIOS : GameThrivePlatform {
 		notificationReceived((string) ((Dictionary<string, object>)dict["aps"])["alert"], additionalData, (bool)dict["isActive"]);
 	}
 
-	public void OnApplicationPause(bool paused) { } // iOS doesn't require handling of this
+	public void OnApplicationPause(bool paused) {
+		if (paused)
+			_onPause();
+		else
+			_onResume();
+	}
 }
 #endif

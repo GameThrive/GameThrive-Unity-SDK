@@ -19,8 +19,11 @@
 public interface GameThrivePlatform {
 	void RegisterForPushNotifications();
 	void SendTag(string tagName, string tagValue);
+	void GetTags();
+	void DeleteTag(string key);
 	void SendPurchase(double amount);
 	void OnApplicationPause(bool paused);
+	void IdsAvailable();
 
 	void FireNotificationReceivedEvent(string jsonString, GameThrive.NotificationReceived notificationReceived);
 }
