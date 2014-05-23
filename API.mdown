@@ -8,6 +8,7 @@ List of Methods
 - [`GetTags`](#getTags)
 - [`DeleteTag`](#deleteTag)
 - [`SendPurchase`](#sendPurchase)
+- [`RegisterForPushNotifications`](#RegisterForPushNotifications)
 - [`GetIdsAvailable`](#idsAvailable)
 
 List of Delegates
@@ -121,6 +122,17 @@ Lets you retrieve the GameThrive player id and push token. Your delegate is call
 	}
 	````
 
+
+
+<a name="RegisterForPushNotifications" />
+#### RegisterForPushNotifications
+Call this when you would like to prompt an iOS user to accept push notifications with the default system prompt. Only use if you passed false to autoRegister when calling Init.
+
+- __Example__
+
+	````CSharp
+	GameThrive.RegisterForPushNotifications();
+	````
 
 ## Delegates
 
