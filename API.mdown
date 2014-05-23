@@ -1,0 +1,191 @@
+# GameThrive Unity SDK API
+
+
+List of Methods
+----------
+- [`Init`](#Init)
+- [`SendTag`](#sendTag)
+- [`GetTags`](#getTags)
+- [`DeleteTag`](#deleteTag)
+- [`SendPurchase`](#sendPurchase)
+- [`GetIdsAvailable`](#idsAvailable)
+
+List of Delegates
+-----
+- [`HandleNotification`](#HandleNotification)
+- [`IdsAvailableHandler`](#IdsAvailableHandler)
+- [`TagsReceived`](#TagsReceived)
+
+
+## Methods
+<a name="Init" />
+#### Init
+Only required method you call to setup GameThrive to recieve push notifications. Call this on the first scene that is loaded.
+
+- ##### Parameters
+ - __`string` _appId___ - Your GameThrive app id from gamethrive.com
+ - __`string` _googleProjectNumber(Optional)___ -  Your Google project number that is only required for Android GCM pushes.
+ - __`NotificationReceived` _inNotificationDelegate(Optional)___ - Calls this delegate when a notification is opened or one is received when the user is in your game.
+ - __`bool` _autoRegister(Optional)___ -  Set false to delay the iOS accept notification system prompt. Defaults true. You can then call `GameThrive.RegisterForPushNotifications` at a better point in your game to prompt them.
+
+ 
+- __Example__
+
+	````CSharp
+	GameThrive.Init("5eb5a37e-b458-11e3-ac11-000c2940e62c", "703322744261", HandleNotification);
+	````
+
+<a name="sendTag" />
+#### SendTag
+Tag a player based on a game event of your choosing so later you can create segments on [gamethrive.com](https://gamethrive.com) to target these players.
+
+- ##### Parameters
+ - __`string` _key___ - Key of your choosing to create or update.
+   - _NOTE:_ Passing in a blank String deletes the key, you can also call deleteTag.
+ - __`string` _value___ - Value to set on the key.
+
+ 
+- __Example__
+
+	````CSharp
+	GameThrive.SendTag("key", "value");
+	````
+
+<a name="getTags" />
+#### GetTags
+Retrieve a list of tags that have been set on the player from the GameThrive server.
+
+- ##### Parameters
+ - __`TagsReceived` _inTagsReceivedDelegate___ - Delegate gets called once the tags are available.
+
+ 
+- __Example__
+
+	````CSharp
+	void SomeMethod() {
+		GameThrive.GetTags(TagsReceived);
+	}
+
+	private void TagsReceived(Dictionary<string, object> tags) {
+		foreach (var tag in tags)
+			print(tag.Key + ":" + tag.Value);
+	}
+	````
+
+<a name="deleteTag" />
+#### DeleteTag
+Deletes a tag that was previously set on a player with `sendTag`.
+
+- ##### Parameters
+ - __`String` _key___ - Key to remove.
+   
+ 
+- __Example__
+
+	````CSharp
+	GameThrive.DeleteTag("key");
+	````
+
+<a name="sendPurchase" />
+#### SendPurchase
+Call this method when a user completes an in-app purchase, and provide the amount spent in USD. This can later be used to target free vs paid users when sending a push notification.
+
+- ##### Parameters
+ - __double  _amount___ - Amount spent in USD.
+   
+- __Example__
+
+	````CSharp
+	GameThrive.sendPurchase(1.23d);
+	````
+
+
+
+<a name="idsAvailable" />
+#### GetIdsAvailable
+Lets you retrieve the GameThrive player id and push token. Your delegate is called after the device is successfully registered with GameThrive.
+
+- ##### Parameters
+ - __`IdsAvailable`  _inIdsAvailableDelegate___ -  Calls the delegate when the player id is available.
+
+- __Example__
+
+	````CSharp
+	void SomeMethod() {
+		GameThrive.GetIdsAvailable(IdsAvailable);
+	}
+
+	private void IdsAvailable(string playerID, string pushToken) {
+		print("PlayerID:"  + playerID);
+		print("pushToken:" + pushToken);
+	}
+	````
+
+
+## Delegates
+
+<a name="HandleNotification" />
+#### HandleNotification
+Delegate you can define to process information on the notification the user just opened.
+
+- __Parameters__
+     - __`String` _message___ - The message text the user seen in the notification.
+     - __`Dictionary<string, object>` _additionalData___ - Key value pairs that were set on the notification.
+     - __`boolean` _isActive___ - True if your app was currently being used when a notification came in.
+   
+ 
+- __Example__
+
+	````CSharp
+	private static void HandleNotification(string message, Dictionary<string, object> additionalData, bool isActive) {
+		print(message);
+
+		// When isActive is true this means the player is currently in your game.
+		// Use isActive and your own game logic so you don't interupt the player with a popup or menu when they are in the middle of playing your game.
+		if (additionalData != null) {
+			if (additionalData.ContainsKey("discount")) {
+				extraMessage = "DISCOUNT!";
+				// Take player to your store.
+			}
+			else if (additionalData.ContainsKey("bonusCredits")) {
+				extraMessage = "BONUS CREDITS!";
+				// Take player to your store.
+			}
+		}
+	}
+	````
+
+<a name="IdsAvailable" />
+#### IdsAvailable
+Delegate you can define to get the GameThrive playerId and Google registration Id or an iOS push token.
+
+   - __Parameters__
+     - __`String` _playerId___ - GameThrive playerId is a UUID formatted string.(_unique per device per app_)
+     - __`String` _pushToken___ - Either a Google registration Id or an iOS push token identifier(_unique per device per app_).
+      - _NOTE:_ Might be blank if push notifications are not accepted on iOS, Google Play services are not installed, or from a connection issue.
+ 
+- __Example__
+
+	````CSharp
+	private void IdsAvailable(string playerID, string pushToken) {
+		print("PlayerID:"  + playerID);
+		print("pushToken:" + pushToken);
+	}
+	````
+
+<a name="TagsReceived" />
+#### TagsReceived
+Delete you can define to get the all the tags set on a player from gamethrive.com.
+
+   - __Parameters__
+     - __`Dictionary<string, object>` _tags___ - Dictionary of key value pairs retrieved from the GameThrive server.
+   
+ 
+- __Example__
+
+	````CSharp
+	private static void TagsReceived(Dictionary<string, object> tags) {
+		foreach (var tag in tags)
+			print(tag.Key + ":" + tag.Value);
+	}
+	````

@@ -3,5 +3,5 @@ GameThrive Unity Push Notification Plugin
 
 GameThrive is a free push notification service for mobile apps. This plugin makes it easy to integrate your Unity game with GameThrive.
 
-See http://docs.gamethrive.com/article/26-overview-using-gamethrive-in-your-unity3d-sdk-game for documentation.
-
+See http://docs.gamethrive.com/article/26-overview-using-gamethrive-in-your-unity3d-sdk-game for setup documentation.
+See https://github.com/GameThrive/GameThrive-Unity-SDK/blob/master/API.mdown for GameThrive API documentation.
