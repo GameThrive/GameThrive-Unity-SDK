@@ -104,7 +104,7 @@ Call this method when a user completes an in-app purchase, and provide the amoun
 
 <a name="idsAvailable" />
 #### GetIdsAvailable
-Lets you retrieve the GameThrive player id and push token. Your delegate is called after the device is successfully registered with GameThrive.
+Lets you retrieve the GameThrive player id and push token. Your delegate is called after the device is successfully registered with GameThrive. If the device has already successfully registered, the delegate will be called immediately.
 
 - ##### Parameters
  - __`IdsAvailable`  _inIdsAvailableDelegate___ -  Calls the delegate when the player id is available.
