@@ -109,7 +109,7 @@ Lets you retrieve the GameThrive player id and push token. Your delegate is call
 - ##### Parameters
  - __`IdsAvailable`  _inIdsAvailableDelegate___ -  Calls the delegate when the player id is available.
 
-- __Example__
+- __Example(C#)__
 
 	````CSharp
 	void SomeMethod() {
@@ -117,6 +117,18 @@ Lets you retrieve the GameThrive player id and push token. Your delegate is call
 	}
 
 	private void IdsAvailable(string playerID, string pushToken) {
+		print("PlayerID:"  + playerID);
+		print("pushToken:" + pushToken);
+	}
+	````
+- __Example(UnityScript)__
+
+	````JavaScript
+	function SomeMethod() {
+		GameThrive.GetIdsAvailable(IdsAvailable);
+	}
+
+	private function IdsAvailable(playerID : String, pushToken :String) : void {
 		print("PlayerID:"  + playerID);
 		print("pushToken:" + pushToken);
 	}
@@ -146,10 +158,31 @@ Delegate you can define to process information on the notification the user just
      - __`boolean` _isActive___ - True if your app was currently being used when a notification came in.
    
  
-- __Example__
+- __Example(C#)__
 
 	````CSharp
 	private static void HandleNotification(string message, Dictionary<string, object> additionalData, bool isActive) {
+		print(message);
+
+		// When isActive is true this means the player is currently in your game.
+		// Use isActive and your own game logic so you don't interupt the player with a popup or menu when they are in the middle of playing your game.
+		if (additionalData != null) {
+			if (additionalData.ContainsKey("discount")) {
+				extraMessage = "DISCOUNT!";
+				// Take player to your store.
+			}
+			else if (additionalData.ContainsKey("bonusCredits")) {
+				extraMessage = "BONUS CREDITS!";
+				// Take player to your store.
+			}
+		}
+	}
+	````
+
+- __Example(UnityScript)__
+
+	````JavaScript
+	private static function HandleNotification(message : String, additionalData : Dictionary.<String, Object>, isActive : boolean) : void {
 		print(message);
 
 		// When isActive is true this means the player is currently in your game.
