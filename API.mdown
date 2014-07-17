@@ -220,7 +220,7 @@ Delegate you can define to get the GameThrive playerId and Google registration I
 
 <a name="TagsReceived" />
 #### TagsReceived
-Delete you can define to get the all the tags set on a player from gamethrive.com.
+Delegate you can define to get the all the tags set on a player from gamethrive.com.
 
    - __Parameters__
      - __`Dictionary<string, object>` _tags___ - Dictionary of key value pairs retrieved from the GameThrive server.
