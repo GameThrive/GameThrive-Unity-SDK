@@ -95,6 +95,9 @@ void _getTags() {
 
 void _idsAvailable() {
     [gameThrive IdsAvailable:^(NSString* playerId, NSString* pushToken) {
+        if(pushToken == nil)
+            pushToken = @"";
+        
         UnitySendMessage(unityListener, "onIdsAvailable",
                          dictionaryToJsonChar(@{@"playerId" : playerId, @"pushToken" : pushToken}));
     }];
