@@ -95,11 +95,12 @@ void _getTags() {
 
 void _idsAvailable() {
     [gameThrive IdsAvailable:^(NSString* playerId, NSString* pushToken) {
-        if(pushToken == nil)
-            pushToken = @"";
-        
+    	//this is not valid inside that block
+        //if(pushToken == nil)
+        //    pushToken = @"";
+        NSString *temp = pushToken != nil ? pushToken : @"";
         UnitySendMessage(unityListener, "onIdsAvailable",
-                         dictionaryToJsonChar(@{@"playerId" : playerId, @"pushToken" : pushToken}));
+                         dictionaryToJsonChar(@{@"playerId" : playerId, @"pushToken" : temp}));
     }];
 }
 
