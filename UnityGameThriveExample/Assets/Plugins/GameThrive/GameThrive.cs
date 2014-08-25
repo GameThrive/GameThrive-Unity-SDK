@@ -34,15 +34,15 @@ public class GameThrive : MonoBehaviour {
 	private static GameThrivePlatform gameThrivePlatform = null;
 	private static bool initialized = false;
 
-	private static NotificationReceived notificationDelegate = null;
-	private static IdsAvailable idsAvailableDelegate = null;
-	private static TagsReceived tagsReceivedDelegate = null;
+	internal static NotificationReceived notificationDelegate = null;
+	internal static IdsAvailable idsAvailableDelegate = null;
+	internal static TagsReceived tagsReceivedDelegate = null;
 
 	// Name of the GameObject to put into your game scene.
 	private const string gameObjectName = "GameThrive";
 #endif
 
-	// Init - Only required method you call to setup GameThrive to recieve push notifications.
+    // Init - Only required method you call to setup GameThrive to recieve push notifications.
 	//        Call this on the first scene that is loaded.
 	// appId                  = Your GameThrive app id from gamethrive.com
 	// googleProjectNumber    = Your google project number that is only required for Android GCM pushes.
@@ -56,6 +56,8 @@ public class GameThrive : MonoBehaviour {
 				gameThrivePlatform = new GameThriveAndroid(gameObjectName, googleProjectNumber, appId);
 			#elif UNITY_IPHONE
 				gameThrivePlatform = new GameThriveIOS(gameObjectName, appId, autoRegister);
+            #elif UNITY_WP8
+                gameThrivePlatform = new GameThriveWP(appId);
 			#endif
 			notificationDelegate = inNotificationDelegate;
 			GameObject go = new GameObject(gameObjectName);

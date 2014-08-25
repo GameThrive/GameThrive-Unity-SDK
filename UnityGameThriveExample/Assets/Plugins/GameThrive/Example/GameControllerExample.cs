@@ -27,7 +27,7 @@ public class GameControllerExample : MonoBehaviour {
 
 		// Call before using any other methods on GameThrive.
 		// Should only be called once when your game is loaded.
-		GameThrive.Init("b49e69ca-d0b8-11e3-97bf-c3d1433e8bc1", "703322744261", HandleNotification);
+		GameThrive.Init("5eb5a37e-b458-11e3-ac11-000c2940e62c", "703322744261", HandleNotification);
 	}
 
 	// Gets called when the player opens the notification or gets one while in your game.
@@ -41,7 +41,7 @@ public class GameControllerExample : MonoBehaviour {
 		// Use isActive and your own game logic so you don't interupt the player with a popup or menu when they are in the middle of playing your game.
 		if (additionalData != null) {
 			if (additionalData.ContainsKey("discount")) {
-				extraMessage = "DISCOUNT!";
+                extraMessage = (string)additionalData["discount"];
 				// Take player to your store.
 			}
 			else if (additionalData.ContainsKey("bonusCredits")) {
