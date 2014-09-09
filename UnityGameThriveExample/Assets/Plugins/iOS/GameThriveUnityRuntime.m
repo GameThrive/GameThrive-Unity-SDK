@@ -59,13 +59,17 @@ static void switchMethods(Class class, SEL oldSel, SEL newSel, IMP impl, const c
     [self setGameThriveDelegate:delegate];
 }
 
+void initGameThriveObject(const char* appId, BOOL autoRegister) {
+    if (gameThrive == nil)
+        gameThrive = [[GameThrive alloc] init:(appId ? [NSString stringWithUTF8String: appId] : nil) autoRegister:autoRegister];
+}
 
 void _init(const char* listenerName, const char* appId, BOOL autoRegister) {
     unsigned long len = strlen(listenerName);
 	unityListener = malloc(len + 1);
 	strcpy(unityListener, listenerName);
     
-    gameThrive = [[GameThrive alloc] init:CreateNSString(appId) autoRegister:autoRegister];
+    initGameThriveObject(appId, autoRegister);
     
     if (launchDict)
         processNotificationOpened(launchDict, false);
@@ -127,8 +131,13 @@ BOOL didFinishLaunchingWithOptions_GTLocal(id self, SEL _cmd, id application, id
     
     BOOL result = YES;
     
-	if ([self respondsToSelector:@selector(application:selectorDidFinishLaunchingWithOptions:)])
+	if ([self respondsToSelector:@selector(application:selectorDidFinishLaunchingWithOptions:)]) {
+        if (launchDict) {
+            initGameThriveObject(nil, true);
+            [gameThrive notificationOpened:launchDict];
+        }
 		result = (BOOL) [self application:application selectorDidFinishLaunchingWithOptions:launchOptions];
+    }
     else {
 		[self applicationDidFinishLaunching:application];
 		result = YES;
@@ -138,6 +147,7 @@ BOOL didFinishLaunchingWithOptions_GTLocal(id self, SEL _cmd, id application, id
 }
 
 void didReceiveRemoteNotification_GTLocal(id self, SEL _cmd, id application, id userInfo) {
+    [gameThrive notificationOpened:userInfo];
     processNotificationOpened(userInfo, [application applicationState] == UIApplicationStateActive);
 }
 
@@ -149,8 +159,6 @@ const char* dictionaryToJsonChar(NSDictionary* dictionaryToConvert) {
 }
 
 void processNotificationOpened(NSDictionary* messageData, BOOL isActive) {
-    [gameThrive notificationOpened:messageData];
-    
     NSMutableDictionary* pushDict = [messageData mutableCopy];
     
     [pushDict setValue:[NSNumber numberWithBool:isActive] forKey:@"isActive"];
