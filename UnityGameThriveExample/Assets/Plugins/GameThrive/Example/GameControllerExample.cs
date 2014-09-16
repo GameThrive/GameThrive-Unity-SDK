@@ -47,6 +47,10 @@ public class GameControllerExample : MonoBehaviour {
 			else if (additionalData.ContainsKey("bonusCredits")) {
 				extraMessage = "BONUS CREDITS!";
 				// Take player to your store.
+			} else if (additionalData.ContainsKey("actionSelected")) {
+				// actionSelected equals the id on the button the user presed.
+				// actionSelected will equal "__DEFAULT__" when the notification itself was tapped when buttons were present.
+				extraMessage = "Pressed ButtonId: " + additionalData["actionSelected"];
 			}
 		}
 	}

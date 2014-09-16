@@ -18,17 +18,18 @@
  * limitations under the License.
  */
 
-// GameThrive SDK v1.3.2
+// GameThrive SDK v1.5.0
 
 #import <Foundation/Foundation.h>
+#import <objc/runtime.h>
 
 typedef void (^GTResultSuccessBlock)(NSDictionary* result);
 typedef void (^GTFailureBlock)(NSError* error);
 typedef void (^GTIdsAvailableBlock)(NSString* playerId, NSString* pushToken);
-
+typedef void (^GTHandleNotificationBlock)(NSString* message, NSDictionary* additionalData, BOOL isActive);
 
 /**
- An `GameThrive` provides a high level interface to interacting with GameThrive's push service.
+ `GameThrive` provides a high level interface to interacting with GameThrive's push service.
  
  `GameThrive` exposes a defaultClient for applications which use a globally available client to share configuration settings.
  
@@ -51,21 +52,23 @@ typedef void (^GTIdsAvailableBlock)(NSString* playerId, NSString* pushToken);
  Initialize GameThrive. Sends push token to GameThrive so you can later send notifications.
  
  */
-- (id)init;
 
-- (id)init:(BOOL)autoRegister;
+- (id)initWithLaunchOptions:(NSDictionary*)launchOptions;
 
-- (id)init:(NSString*)appId autoRegister:(BOOL)autoRegister;
+- (id)initWithLaunchOptions:(NSDictionary*)launchOptions autoRegister:(BOOL)autoRegister;
 
+- (id)initWithLaunchOptions:(NSDictionary*)launchOptions handleNotification:(GTHandleNotificationBlock)callback;
+
+- (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotification:(GTHandleNotificationBlock)callback;
+
+- (id)initWithLaunchOptions:(NSDictionary*)launchOptions appId:(NSString*)appId handleNotification:(GTHandleNotificationBlock)callback autoRegister:(BOOL)autoRegister;
+
+// Only use if you passed FALSE to autoRegister
 - (void)registerForPushNotifications;
-
-- (void)onFocus:(NSString*)state;
 
 
 + (void)setDefaultClient:(GameThrive*)client;
 + (GameThrive*)defaultClient;
-
-- (void)registerDeviceToken:(id)token onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
 
 - (void)sendTag:(NSString*)key value:(NSString*)value onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
 - (void)sendTag:(NSString*)key value:(NSString*)value;
@@ -85,14 +88,8 @@ typedef void (^GTIdsAvailableBlock)(NSString* playerId, NSString* pushToken);
 - (void)sendPurchase:(NSNumber*)amount onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
 - (void)sendPurchase:(NSNumber*)amount;
 
-- (void)notificationOpened:(NSDictionary*)messageDict;
 
 - (void)IdsAvailable:(GTIdsAvailableBlock)idsAvailableBlock;
 
-- (NSString*)getPlayerId;
-- (NSString*)getDeviceToken;
-
-- (NSDictionary*)getAdditionalData;
-- (NSString*)getMessageString;
-
 @end
+

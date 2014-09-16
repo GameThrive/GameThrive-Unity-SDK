@@ -41,12 +41,6 @@ public class GameThriveIOS : GameThrivePlatform {
 	extern static public void _sendPurchase(double amount);
 
 	[System.Runtime.InteropServices.DllImport("__Internal")]
-	extern static public void _onPause();
-
-	[System.Runtime.InteropServices.DllImport("__Internal")]
-	extern static public void _onResume();
-
-	[System.Runtime.InteropServices.DllImport("__Internal")]
 	extern static public void _idsAvailable();
 
 
@@ -80,19 +74,16 @@ public class GameThriveIOS : GameThrivePlatform {
 
 	public void FireNotificationReceivedEvent(string jsonString, GameThrive.NotificationReceived notificationReceived) {
 		var dict = Json.Deserialize(jsonString) as Dictionary<string, object>;
-		var customDict = (Dictionary<string, object>)dict["custom"];
-		Dictionary<string, object> additionalData = null;
-		if (customDict.ContainsKey("a"))
-			additionalData = (Dictionary<string, object>)customDict["a"];
 
-		notificationReceived((string) ((Dictionary<string, object>)dict["aps"])["alert"], additionalData, (bool)dict["isActive"]);
+		string message = (string)(dict["alertMessage"]);
+		dict.Remove("alertMessage");
+
+		bool isActive = (bool)dict["isActive"];
+		dict.Remove("isActive");
+
+		notificationReceived(message, dict, isActive);
 	}
 
-	public void OnApplicationPause(bool paused) {
-		if (paused)
-			_onPause();
-		else
-			_onResume();
-	}
+	public void OnApplicationPause(bool paused) {} // Handled by the Native Plugin
 }
 #endif
