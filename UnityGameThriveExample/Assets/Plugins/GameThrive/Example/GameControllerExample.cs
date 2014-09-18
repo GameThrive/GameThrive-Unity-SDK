@@ -48,14 +48,14 @@ public class GameControllerExample : MonoBehaviour {
 				extraMessage = "BONUS CREDITS!";
 				// Take player to your store.
 			} else if (additionalData.ContainsKey("actionSelected")) {
-				// actionSelected equals the id on the button the user presed.
+				// actionSelected equals the id on the button the user pressed.
 				// actionSelected will equal "__DEFAULT__" when the notification itself was tapped when buttons were present.
 				extraMessage = "Pressed ButtonId: " + additionalData["actionSelected"];
 			}
 		}
 	}
 
-	// Test buttons to SendTags and SendPurchase to test segements on gamethrive.com
+	// Test buttons to SendTags and SendPurchase to test segments on gamethrive.com
 	void OnGUI () {
 		GUIStyle customTextSize = new GUIStyle("button");
 		customTextSize.fontSize = 30;
