@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-// GameThrive SDK v1.5.4
+// GameThrive SDK v1.6.0
 
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
@@ -85,8 +85,8 @@ typedef void (^GTHandleNotificationBlock)(NSString* message, NSDictionary* addit
 - (void)deleteTags:(NSArray*)keys onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
 - (void)deleteTags:(NSArray*)keys;
 
-- (void)sendPurchase:(NSNumber*)amount onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock;
-- (void)sendPurchase:(NSNumber*)amount;
+- (void)sendPurchase:(NSNumber*)amount onSuccess:(GTResultSuccessBlock)successBlock onFailure:(GTFailureBlock)failureBlock DEPRECATED_ATTRIBUTE;
+- (void)sendPurchase:(NSNumber*)amount DEPRECATED_ATTRIBUTE;
 
 
 - (void)IdsAvailable:(GTIdsAvailableBlock)idsAvailableBlock;
