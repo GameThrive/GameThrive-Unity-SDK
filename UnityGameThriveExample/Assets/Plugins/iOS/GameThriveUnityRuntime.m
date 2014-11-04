@@ -28,9 +28,20 @@ char* unityListener = nil;
 char* appId;
 NSMutableDictionary* launchDict;
 
-static void switchMethods(Class class, SEL oldSel, SEL newSel, IMP impl, const char* sig) {
-    class_addMethod(class, newSel, impl, sig);
-    method_exchangeImplementations(class_getInstanceMethod(class, oldSel), class_getInstanceMethod(class, newSel));
+static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
+    Method newMeth = class_getInstanceMethod(newClass, newSel);
+    IMP imp = method_getImplementation(newMeth);
+    const char* methodTypeEncoding = method_getTypeEncoding(newMeth);
+    
+    BOOL successful = class_addMethod(addToClass, makeLikeSel, imp, methodTypeEncoding);
+    if (!successful) {
+        class_addMethod(addToClass, newSel, imp, methodTypeEncoding);
+        newMeth = class_getInstanceMethod(addToClass, newSel);
+        
+        Method orgMeth = class_getInstanceMethod(addToClass, makeLikeSel);
+        
+        method_exchangeImplementations(orgMeth, newMeth);
+    }
 }
 
 const char* dictionaryToJsonChar(NSDictionary* dictionaryToConvert) {
@@ -45,29 +56,26 @@ const char* dictionaryToJsonChar(NSDictionary* dictionaryToConvert) {
     method_exchangeImplementations(class_getInstanceMethod(self, @selector(setDelegate:)), class_getInstanceMethod(self, @selector(setGameThriveUnityDelegate:)));
 }
 
+static Class delegateClass = nil;
+
 - (void) setGameThriveUnityDelegate:(id<UIApplicationDelegate>)delegate {
-    switchMethods([delegate class], @selector(application:didFinishLaunchingWithOptions:),
-                  @selector(application:selectorDidFinishLaunchingWithOptions:), (IMP)didFinishLaunchingWithOptions_GTLocal, "v@:::");
+    if(delegateClass != nil)
+		return;
+    delegateClass = [delegate class];
+    
+    injectSelector(self.class, @selector(gameThriveApplication:didFinishLaunchingWithOptions:),
+                   delegateClass, @selector(application:didFinishLaunchingWithOptions:));
     [self setGameThriveUnityDelegate:delegate];
 }
 
-BOOL didFinishLaunchingWithOptions_GTLocal(id self, SEL _cmd, id application, id launchOptions) {
-    BOOL result = YES;
+- (BOOL)gameThriveApplication:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions {
+    if ([launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey] != nil)
+        initGameThriveObject(launchOptions, nil, true);
     
-    if ([self respondsToSelector:@selector(application:selectorDidFinishLaunchingWithOptions:)]) {
-        BOOL openedFromNotification = ([launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey] != nil);
-        if (openedFromNotification)
-            initGameThriveObject(launchOptions, nil, true);
-        result = (BOOL) [self application:application selectorDidFinishLaunchingWithOptions:launchOptions];
-    }
-    else {
-        [self applicationDidFinishLaunching:application];
-        result = YES;
-    }
-    
-    return result;
+    if ([self respondsToSelector:@selector(gameThriveApplication:didFinishLaunchingWithOptions:)])
+        return [self gameThriveApplication:application didFinishLaunchingWithOptions:launchOptions];
+    return YES;
 }
-
 
 void processNotificationOpened(NSDictionary* resultDictionary) {
     UnitySendMessage(unityListener, "onPushNotificationReceived", dictionaryToJsonChar(resultDictionary));
