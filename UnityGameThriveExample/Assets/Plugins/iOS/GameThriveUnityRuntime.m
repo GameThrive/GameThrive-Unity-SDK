@@ -39,6 +39,21 @@ char* unityListener = nil;
 char* appId;
 NSMutableDictionary* launchDict;
 
+static Class getClassWithProtocolInHierarchy(Class searchClass, Protocol* protocolToFind) {
+    if (!class_conformsToProtocol(searchClass, protocolToFind)) {
+        if ([searchClass superclass] == [NSObject class])
+            return nil;
+        
+        Class foundClass = getClassWithProtocolInHierarchy([searchClass superclass], protocolToFind);
+        if (foundClass)
+            return foundClass;
+        
+        return searchClass;
+    }
+    
+    return searchClass;
+}
+
 static void injectSelector(Class newClass, SEL newSel, Class addToClass, SEL makeLikeSel) {
     Method newMeth = class_getInstanceMethod(newClass, newSel);
     IMP imp = method_getImplementation(newMeth);
@@ -72,7 +87,8 @@ static Class delegateClass = nil;
 - (void) setGameThriveUnityDelegate:(id<UIApplicationDelegate>)delegate {
     if(delegateClass != nil)
 		return;
-    delegateClass = [delegate class];
+    
+    delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
     
     injectSelector(self.class, @selector(gameThriveApplication:didFinishLaunchingWithOptions:),
                    delegateClass, @selector(application:didFinishLaunchingWithOptions:));
@@ -85,6 +101,7 @@ static Class delegateClass = nil;
     
     if ([self respondsToSelector:@selector(gameThriveApplication:didFinishLaunchingWithOptions:)])
         return [self gameThriveApplication:application didFinishLaunchingWithOptions:launchOptions];
+    
     return YES;
 }
 
