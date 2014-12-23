@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-// GameThrive SDK v1.6.4
+// GameThrive SDK v1.6.5
 
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
@@ -37,7 +37,7 @@ typedef void (^GTHandleNotificationBlock)(NSString* message, NSDictionary* addit
  
  ### Setting up the SDK ###
  
- Follow the documentation from http://docs.gamethrive.com/category/10-ios-game-setup to setup with your game.
+ Follow the documentation from http://documentation.gamethrive.com/v1.0/docs/installing-the-gamethrive-ios-sdk to setup with your game.
  
  */
 @interface GameThrive : NSObject
