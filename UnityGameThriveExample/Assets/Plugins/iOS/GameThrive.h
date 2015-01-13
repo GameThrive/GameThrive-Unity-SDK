@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-// GameThrive SDK v1.6.5
+// GameThrive SDK v1.6.6
 
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
