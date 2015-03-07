@@ -144,12 +144,20 @@ void _sendTag(const char* tagName, const char* tagValue) {
 	[gameThrive sendTag:CreateNSString(tagName) value:CreateNSString(tagValue)];
 }
 
+void _sendTags(const char* tags) {
+    [gameThrive sendTagsWithJsonString:CreateNSString(tags)];
+}
+
 void _sendPurchase(double amount) {
     [gameThrive sendPurchase:[NSNumber numberWithDouble:amount]];
 }
 
 void _deleteTag(const char* key) {
     [gameThrive deleteTag:CreateNSString(key)];
+}
+
+void _deleteTags(const char* keys) {
+    [gameThrive deleteTagsWithJsonString:CreateNSString(keys)];
 }
 
 void _getTags() {

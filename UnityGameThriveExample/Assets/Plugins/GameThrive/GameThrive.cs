@@ -1,7 +1,7 @@
 ﻿/**
  * Modified MIT License
  * 
- * Copyright 2014 GameThrive
+ * Copyright 2015 GameThrive
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,14 @@
  * THE SOFTWARE.
  */
 
+#if !UNITY_EDITOR && (UNITY_ANDROID || UNITY_IPHONE || UNITY_WP8)
+#define GAMETHRIVE_PLATFORM
+#endif
+
+#if !UNITY_EDITOR && UNITY_ANDROID
+#define ANDROID_ONLY
+#endif
+
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,7 +40,7 @@ using GameThrivePush.MiniJSON;
 
 public class GameThrive : MonoBehaviour {
 
-	// NotificationReceived - Delegate is called when a push notification is opend or one is received when the user is in your game.
+	// NotificationReceived - Delegate is called when a push notification is opened or one is received when the user is in your game.
 	// message        = The message text the use seen in the push notification.
 	// additionalData = Dictionary of key value pairs sent with the push notification.
 	// isActive       = True when the user is currentlying in your game when a notification was received.
@@ -41,16 +49,17 @@ public class GameThrive : MonoBehaviour {
 	public delegate void IdsAvailable(string playerID, string pushToken);
 	public delegate void TagsReceived(Dictionary<string, object> tags);
 
-#if !UNITY_EDITOR
+	public static IdsAvailable idsAvailableDelegate = null;
+	public static TagsReceived tagsReceivedDelegate = null;
+
+#if GAMETHRIVE_PLATFORM
 	private static GameThrivePlatform gameThrivePlatform = null;
 	private static bool initialized = false;
 
 	internal static NotificationReceived notificationDelegate = null;
-	internal static IdsAvailable idsAvailableDelegate = null;
-	internal static TagsReceived tagsReceivedDelegate = null;
 
-	// Name of the GameObject to put into your game scene.
-	private const string gameObjectName = "GameThrive";
+	// Name of the GameObject that gets automaticly created in your game scene.
+	private const string gameObjectName = "GameThriveRuntimeObject_KEEP";
 #endif
 
     // Init - Only required method you call to setup GameThrive to recieve push notifications.
@@ -62,19 +71,25 @@ public class GameThrive : MonoBehaviour {
 	//                          You can then call RegisterForPushNotifications at a better point in your game to prompt them.
 	public static void Init(string appId, string googleProjectNumber, NotificationReceived inNotificationDelegate, bool autoRegister) {
 		#if !UNITY_EDITOR
-			if (initialized) return;
-			#if UNITY_ANDROID
-				gameThrivePlatform = new GameThriveAndroid(gameObjectName, googleProjectNumber, appId);
-			#elif UNITY_IPHONE
-				gameThrivePlatform = new GameThriveIOS(gameObjectName, appId, autoRegister);
-            #elif UNITY_WP8
-                gameThrivePlatform = new GameThriveWP(appId);
+			#if GAMETHRIVE_PLATFORM
+				if (initialized) return;
+				#if UNITY_ANDROID
+					gameThrivePlatform = new GameThriveAndroid(gameObjectName, googleProjectNumber, appId);
+				#elif UNITY_IPHONE
+					gameThrivePlatform = new GameThriveIOS(gameObjectName, appId, autoRegister);
+	            #elif UNITY_WP8
+	                gameThrivePlatform = new GameThriveWP(appId);
+				#endif
+				notificationDelegate = inNotificationDelegate;
+				
+				#if !UNITY_WP8
+					GameObject go = new GameObject(gameObjectName);
+					go.AddComponent<GameThrive>();
+					DontDestroyOnLoad(go);
+				#endif
+				
+				initialized = true;
 			#endif
-			notificationDelegate = inNotificationDelegate;
-			GameObject go = new GameObject(gameObjectName);
-			go.AddComponent<GameThrive>();
-			DontDestroyOnLoad(go);
-			initialized = true;
 		#else
 			print("Please run GameThrive on a device to see push notifications.");
 		#endif
@@ -93,30 +108,50 @@ public class GameThrive : MonoBehaviour {
 
 
 
-	// Tag player with a key value pair to later create segments on them at the gamethrive site.
+	// Tag player with a key value pair to later create segments on them at gamethrive.com.
 	public static void SendTag(string tagName, string tagValue) {
-		#if !UNITY_EDITOR
+		#if GAMETHRIVE_PLATFORM
 			gameThrivePlatform.SendTag(tagName, tagValue);
+		#endif
+	}
+
+	// Tag player with a key value pairs to later create segments on them at gamethrive.com.
+	public static void SendTags(IDictionary<string, string> tags) {
+		#if GAMETHRIVE_PLATFORM
+			gameThrivePlatform.SendTags(tags);
 		#endif
 	}
 
 	// Makes a request to gamethrive.com to get current tags set on the player and then run the callback passed in.
 	public static void GetTags(TagsReceived inTagsReceivedDelegate) {
-		#if !UNITY_EDITOR
+		#if GAMETHRIVE_PLATFORM
 			tagsReceivedDelegate = inTagsReceivedDelegate;
 			gameThrivePlatform.GetTags();
 		#endif
 	}
 
+	// Set GameThrive.inTagsReceivedDelegate before calling this method or use the method above.
+	public static void GetTags() {
+		#if GAMETHRIVE_PLATFORM
+			gameThrivePlatform.GetTags();
+		#endif
+	}
+
 	public static void DeleteTag(string key) {
-		#if !UNITY_EDITOR
+		#if GAMETHRIVE_PLATFORM
 			gameThrivePlatform.DeleteTag(key);
+		#endif
+	}
+
+	public static void DeleteTags(IList<string> keys) {
+		#if GAMETHRIVE_PLATFORM
+			gameThrivePlatform.DeleteTags(keys);
 		#endif
 	}
 
 	// Call when the player has made an IAP purchase in your game so you can later send push notifications based on free or paid users.
 	public static void SendPurchase(double amount) {
-		#if !UNITY_EDITOR
+		#if GAMETHRIVE_PLATFORM
 			gameThrivePlatform.SendPurchase(amount);
 		#endif
 	}
@@ -124,7 +159,7 @@ public class GameThrive : MonoBehaviour {
 	// Call this when you would like to prompt an iOS user accept push notifications with the default system prompt.
 	// Only use if you passed false to autoRegister when calling Init.
 	public static void RegisterForPushNotifications() {
-		#if !UNITY_EDITOR
+		#if GAMETHRIVE_PLATFORM
 			gameThrivePlatform.RegisterForPushNotifications();
 		#endif
 	}
@@ -132,15 +167,34 @@ public class GameThrive : MonoBehaviour {
 	// Call this if you need the playerId and/or pushToken
 	// NOTE: pushToken maybe null if notifications are not accepted or there is connectly issues. 
 	public static void GetIdsAvailable(IdsAvailable inIdsAvailableDelegate) {
-		#if !UNITY_EDITOR
+		#if GAMETHRIVE_PLATFORM
 			idsAvailableDelegate = inIdsAvailableDelegate;
 			gameThrivePlatform.IdsAvailable();
 		#endif
 	}
 
+	// Set GameThrive.idsAvailableDelegate before calling this method or use the method above.
+	public static void GetIdsAvailable() {
+		#if GAMETHRIVE_PLATFORM
+			gameThrivePlatform.IdsAvailable();
+		#endif
+	}
+
+	public static void EnableVibrate(bool enable) {
+		#if ANDROID_ONLY
+			((GameThriveAndroid)gameThrivePlatform).EnableVibrate(enable);
+		#endif
+	}
+
+	public static void EnableSound(bool enable) {
+		#if ANDROID_ONLY
+			((GameThriveAndroid)gameThrivePlatform).EnableSound(enable);
+		#endif
+	}
+
 
 	/*** protected and private methods ****/
-	#if !UNITY_EDITOR
+	#if GAMETHRIVE_PLATFORM
 		// Called from the navtive SDK - Called when a push notificaiton is open or app is running when one comes in.
 		private void onPushNotificationReceived(string jsonString) {
 			if (notificationDelegate != null)

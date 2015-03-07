@@ -1,7 +1,7 @@
 ﻿/**
  * Modified MIT License
  * 
- * Copyright 2014 GameThrive
+ * Copyright 2015 GameThrive
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,16 @@
  * THE SOFTWARE.
  */
 
+using System.Collections.Generic;
 
 // Shared interface so GameThrive.cs can use each mobile platform in a generic way
 public interface GameThrivePlatform {
 	void RegisterForPushNotifications();
 	void SendTag(string tagName, string tagValue);
+	void SendTags(IDictionary<string, string> tags);
 	void GetTags();
 	void DeleteTag(string key);
+	void DeleteTags(IList<string> keys);
 	void SendPurchase(double amount);
 	void OnApplicationPause(bool paused);
 	void IdsAvailable();

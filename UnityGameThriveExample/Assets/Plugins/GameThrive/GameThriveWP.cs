@@ -1,7 +1,7 @@
 ﻿/**
  * Modified MIT License
  * 
- * Copyright 2014 GameThrive
+ * Copyright 2015 GameThrive
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,10 @@ class GameThriveWP : GameThrivePlatform {
     public void SendTag(string tagName, string tagValue) {
         GameThriveSDK.GameThrive.SendTag(tagName, tagValue);
     }
+
+	public void SendTags(IDictionary<string> tags) {
+		GameThriveSDK.GameThrive.SendTags(tags);
+	}
     
     public void SendPurchase(double amount) {
         GameThriveSDK.GameThrive.SendPurchase(amount);
@@ -55,6 +59,10 @@ class GameThriveWP : GameThrivePlatform {
     public void DeleteTag(string key) {
         GameThriveSDK.GameThrive.DeleteTag(key);
     }
+
+	public void DeleteTags(IList<string> key) {
+		GameThriveSDK.GameThrive.DeleteTags(key);
+	}
 
     public void IdsAvailable() {
         GameThriveSDK.GameThrive.GetIdsAvailable((playerId, channelUri) => {

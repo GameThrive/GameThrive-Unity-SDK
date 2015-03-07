@@ -1,7 +1,7 @@
 ﻿/**
  * Modified MIT License
  * 
- * Copyright 2014 GameThrive
+ * Copyright 2015 GameThrive
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +36,10 @@ public class GameControllerExample : MonoBehaviour {
 	void Start () {
 		extraMessage = null;
 
+		// The only required method you need to call to setup GameThrive to recieve push notifications.
 		// Call before using any other methods on GameThrive.
 		// Should only be called once when your game is loaded.
+		// GameThrive.Init(GameThrive_AppId, GoogleProjectNumber, NotificationReceivedHandler(optional));
 		GameThrive.Init("b49e69ca-d0b8-11e3-97bf-c3d1433e8bc1", "703322744261", HandleNotification);
 	}
 
@@ -66,23 +68,39 @@ public class GameControllerExample : MonoBehaviour {
 		}
 	}
 
-	// Test buttons to SendTags and SendPurchase to test segments on gamethrive.com
+	// Test Menu
+	// Includes SendTag/SendTags and getting the playerID and pushToken
 	void OnGUI () {
 		GUIStyle customTextSize = new GUIStyle("button");
 		customTextSize.fontSize = 30;
 
-		GUIStyle customBoxSize = new GUIStyle("box");
-		customBoxSize.fontSize = 30;
+		GUIStyle guiBoxStyle = new GUIStyle("box");
+		guiBoxStyle.fontSize = 30;
 
-		GUI.Box(new Rect(10, 10, 390, 250), "Test Menu", customBoxSize);
+		GUI.Box(new Rect(10, 10, 390, 250), "Test Menu", guiBoxStyle);
 
-		if (GUI.Button(new Rect(60, 80, 300, 60), "SendTags", customTextSize))
+		if (GUI.Button (new Rect (60, 80, 300, 60), "SendTags", customTextSize)) {
+			// You can tags users with key value pairs like this:
 			GameThrive.SendTag("UnityTestKey", "TestValue");
+			// Or use an IDictionary if you need to set more than one tag.
+			GameThrive.SendTags(new Dictionary<string, string>() { {"UnityTestKey2", "value2"}, {"UnityTestKey3", "value3"} });
 
-		if (GUI.Button(new Rect(60, 170, 300, 60), "SendPurchase", customTextSize))
-			GameThrive.SendPurchase(2.57d);
+			// You can delete a single tag with it's key.
+			// GameThrive.DeleteTag("UnityTestKey");
+			// Or delete many with an IList.
+			// GameThrive.DeleteTags(new List<string>() {"UnityTestKey2", "UnityTestKey3" });
+		}
 
-		if (extraMessage != null)
-			GUI.Box(new Rect(60, 300, 400, 60), extraMessage, customBoxSize);
+		if (GUI.Button (new Rect (60, 170, 300, 60), "GetIds", customTextSize)) {
+			GameThrive.GetIdsAvailable((playerId, pushToken) => {
+				extraMessage = "PlayerID:\n" + playerId + "\n\nPushToken:\n" + pushToken;
+			});
+		}
+
+		if (extraMessage != null) {
+			guiBoxStyle.alignment = TextAnchor.UpperLeft;
+			guiBoxStyle.wordWrap = true;
+			GUI.Box (new Rect (10, 300, Screen.width - 20, Screen.height - 310), extraMessage, guiBoxStyle);
+		}
 	}
 }

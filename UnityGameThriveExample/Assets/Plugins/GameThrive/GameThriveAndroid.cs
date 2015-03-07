@@ -1,7 +1,7 @@
 ﻿/**
  * Modified MIT License
  * 
- * Copyright 2014 GameThrive
+ * Copyright 2015 GameThrive
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,6 +44,10 @@ public class GameThriveAndroid : GameThrivePlatform {
 		mGameThrive.Call("sendTag", tagName, tagValue);
 	}
 
+	public void SendTags(IDictionary<string, string> tags) {
+		mGameThrive.Call("sendTags", Json.Serialize(tags));
+	}
+
 	public void SendPurchase(double amount) {
 		mGameThrive.Call("sendPurchase", amount);
 	}
@@ -54,6 +58,10 @@ public class GameThriveAndroid : GameThrivePlatform {
 
 	public void DeleteTag(string key) {
 		mGameThrive.Call("deleteTag", key);
+	}
+
+	public void DeleteTags(IList<string> keys) {
+		mGameThrive.Call("deleteTags", Json.Serialize(keys));
 	}
 
 	public void IdsAvailable() {
@@ -77,5 +85,13 @@ public class GameThriveAndroid : GameThrivePlatform {
 	}
 
 	public void RegisterForPushNotifications() { } // Doesn't apply to Android as the Native SDK always registers with GCM.
+
+	public void EnableVibrate(bool enable) {
+		mGameThrive.Call("enableVibrate", enable);
+	}
+
+	public void EnableSound(bool enable) {
+		mGameThrive.Call("enableSound", enable);
+	}
 }
 #endif

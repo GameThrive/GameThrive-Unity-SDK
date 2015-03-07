@@ -1,7 +1,7 @@
 ﻿/**
  * Modified MIT License
  * 
- * Copyright 2014 GameThrive
+ * Copyright 2015 GameThrive
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,10 +43,16 @@ public class GameThriveIOS : GameThrivePlatform {
 	extern static public void _sendTag(string tagName, string tagValue);
 
 	[System.Runtime.InteropServices.DllImport("__Internal")]
+	extern static public void _sendTags(string tags);
+
+	[System.Runtime.InteropServices.DllImport("__Internal")]
 	extern static public void _getTags();
 
 	[System.Runtime.InteropServices.DllImport("__Internal")]
 	extern static public void _deleteTag(string key);
+
+	[System.Runtime.InteropServices.DllImport("__Internal")]
+	extern static public void _deleteTags(string keys);
 
 	[System.Runtime.InteropServices.DllImport("__Internal")]
 	extern static public void _sendPurchase(double amount);
@@ -67,12 +73,20 @@ public class GameThriveIOS : GameThrivePlatform {
 		_sendTag(tagName, tagValue);
 	}
 
+	public void SendTags(IDictionary<string, string> tags) {
+		_sendTags(Json.Serialize(tags));
+	}
+
 	public void GetTags() {
 		_getTags();
 	}
 
 	public void DeleteTag(string key) {
 		_deleteTag(key);
+	}
+
+	public void DeleteTags(IList<string> keys) {
+		_deleteTags(Json.Serialize(keys));
 	}
 
 	public void SendPurchase(double amount) {
